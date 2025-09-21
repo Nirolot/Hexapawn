@@ -1,12 +1,12 @@
-#include "function.hpp"
+#include "Board.hpp"
 #include <algorithm>
 
 Board::Board() 
         : board(boardDimension * boardDimension, EMPTY), 
         whitePositions(boardDimension), 
         blackPositions(boardDimension), 
-        nBlacks(boardDimension), 
-        nWhites(boardDimension)
+        nBlacks(0), 
+        nWhites(0)
 {}
 
 int& Board::at(int row, int col) {
@@ -14,19 +14,19 @@ int& Board::at(int row, int col) {
 }
 
 int Board::find_object(char obj_to_find) {
-    std::string target(1, obj_to_find);  // Convert char to string
-    for(int i = 0; i < alphabet.size(); i++) {
-        if(target == alphabet[i]) {
-            return i;
-        }
+    std::string target = std::string(1, obj_to_find);  // Convert char to string
+    auto it = std::find(alphabet.begin(), alphabet.end(), target);
+    if (it != alphabet.end()) {
+        int idx = std::distance(alphabet.begin(), it);
+        return idx;
     }
     return -1;
 }
 
 std::vector<int> Board::translate_move(std::string move) {
     std::vector<int> final_move(2);
-    final_move[0] = Board::at(Board::find_object(move[0]), move[1] - '0');
-    final_move[1] = Board::at(Board::find_object(move[2]), move[3] - '0');
+    final_move[0] = Board::find_object(move[0]) * boardDimension + (move[1] - '0') - 1;
+    final_move[1] = Board::find_object(move[2]) * boardDimension + (move[3] - '0') - 1;
     
     return final_move;
 }
@@ -44,7 +44,9 @@ void Board::initializeBoard() {
 
     for(int i = 0; i < boardDimension; i++) {
         board[endingRow   * boardDimension + i] = WHITE;
+        whitePositions[nWhites++] = endingRow   * boardDimension + i;
         board[startingRow * boardDimension + i] = BLACK;
+        blackPositions[nBlacks++] = startingRow * boardDimension + i;
     }
 }
 
